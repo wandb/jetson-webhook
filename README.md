@@ -11,3 +11,6 @@ Project demoing using wandb webhooks [here](https://wandb.ai/tiny-ml/quantized%2
 
 appying the alias `retrain` on either data artifact or model artifact will dowload data to Nvidia Jetson and initialize re training.
 
+webhook.py runs a super simple web server in python which listens for incoming signal -- in this case it has a real IP on a real device which serving from an Nvidia Jetson exposed to the public internet.
+
+This can simply be run with `python webhook.py` from an Nvidia Jetson (or any other edge device configured in the same way)
