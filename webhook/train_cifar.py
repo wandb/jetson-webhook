@@ -4,6 +4,9 @@ import torch.optim as optim
 import torchvision
 import torchvision.transforms as transforms
 import torch.nn.functional as F
+from torchvision.datasets import ImageFolder
+from torch.utils.data import DataLoader, Subset
+from utils import split_and_save_dataset
 # The rest of your code remains unchanged
 
 
@@ -27,42 +30,50 @@ class SimpleCNN(nn.Module):
         x = self.fc3(x)
         return x
 
-# Check if CUDA is available, and configure the model to use CUDA
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-print(device)
-# Load and preprocess the CIFAR-10 dataset
-transform = transforms.Compose([
-    transforms.ToTensor(),
-    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-])
+    def train(artifact)
+    # Check if CUDA is available, and configure the model to use CUDA
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    print(device)
+    # Load and preprocess the CIFAR-10 dataset
+    transform = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+    ])
 
-trainset = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=transform)
-trainloader = torch.utils.data.DataLoader(trainset, batch_size=4, shuffle=True)
 
-testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=transform)
-testloader = torch.utils.data.DataLoader(testset, batch_size=4, shuffle=False)
 
-# Initialize the model, loss function, and optimizer
-model = SimpleCNN().to(device)
-criterion = nn.CrossEntropyLoss()
-optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
+    # Get the training indices from the split_and_save_dataset function
+    dataset = split_and_save_dataset(transform=transform,
+                                    root='./full_cifar',
+                                    new_root='./train_subset')  # If you've already called this before, you don't need to call it again
 
-# Train the model for 10 epochs
-for epoch in range(10):
-    running_loss = 0.0
-    for i, data in enumerate(trainloader, 0):
-        inputs, labels = data[0].to(device), data[1].to(device)
+    # Now, create the DataLoader using the subset
+    trainloader = DataLoader(dataset, batch_size=4, shuffle=True)
 
-        optimizer.zero_grad()
+    # Create the test set
+    testset = torchvision.datasets.CIFAR10(root='./test_data', train=False, download=True, transform=transform)
+    testloader = torch.utils.data.DataLoader(testset, batch_size=4, shuffle=False)
+    # Initialize the model, loss function, and optimizer
+    model = SimpleCNN().to(device)
+    criterion = nn.CrossEntropyLoss()
+    optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
 
-        outputs = model(inputs)
-        loss = criterion(outputs, labels)
-        loss.backward()
-        optimizer.step()
+    # Train the model for 10 epochs
+    for epoch in range(10):
+        running_loss = 0.0
+        for i, data in enumerate(trainloader, 0):
+            inputs, labels = data[0].to(device), data[1].to(device)
 
-        running_loss += loss.item()
-        if i % 2000 == 1999:
-            print('[%d, %5d] loss: %.3f' % (epoch + 1, i + 1, running_loss / 2000))
-            running_loss = 0.0
+            optimizer.zero_grad()
 
-print('Finished Training')
+            outputs = model(inputs)
+            loss = criterion(outputs, labels)
+            loss.backward()
+            optimizer.step()
+
+            running_loss += loss.item()
+            if i % 2000 == 1999:
+                print('[%d, %5d] loss: %.3f' % (epoch + 1, i + 1, running_loss / 2000))
+                running_loss = 0.0
+
+    print('Finished Training')
