@@ -5,4 +5,4 @@ notebook [here](https://colab.research.google.com/drive/1PdR7tzXbBp7HupE3pq633cH
 
 This repo demonstrates using webhooks to train, re train and dowload wandb artifacts to and edge device (nvidia jetson) using wandb webhooks
 
-![/home/frida/emea-sesame/PXL_20230920_075839451.jpg](/home/frida/emea-sesame/PXL_20230920_075839451.jpg)
+![PXL_20230920_075839451.jpg](/home/frida/emea-sesame/PXL_20230920_075839451.jpg)
