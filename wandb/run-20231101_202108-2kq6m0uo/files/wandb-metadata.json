@@ -1,0 +1,22 @@
+{
+    "os": "Linux-4.9.253-tegra-aarch64-with-Ubuntu-18.04-bionic",
+    "python": "3.6.9",
+    "heartbeatAt": "2023-11-01T20:21:09.043868",
+    "startedAt": "2023-11-01T20:21:08.068963",
+    "docker": null,
+    "cpu_count": 4,
+    "cuda": "10.2.300",
+    "args": [],
+    "state": "running",
+    "program": "webhook/qunantized_train.py",
+    "codePath": "webhook/qunantized_train.py",
+    "git": {
+        "remote": "git@github.com:wandb/emea-sesame.git",
+        "commit": "629d879f00b48ac8e3d534605870532918dd1643"
+    },
+    "email": "fdesigley@gmail.com",
+    "root": "/home/frida/emea-sesame",
+    "host": "jetson-nano",
+    "username": "frida",
+    "executable": "/usr/bin/python3"
+}
