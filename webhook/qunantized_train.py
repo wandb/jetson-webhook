@@ -7,28 +7,29 @@ import torch.nn.functional as F
 import torch.quantization
 import wandb
 import os
-wandb.login(key=os.environ['WANDB_API_KEY'],force=True,relogin=True)
+from copy import deepcopy
 
-run = wandb.init(project='jetson_training',
-                 entity='demonstrations')
+wandb.login(key=os.environ['WANDB_API_KEY'], force=True, relogin=True)
 
-artifact = wandb.Artifact(name='CIFAR_10',type='CIFAR_DATA')
+run = wandb.init(project='quantized edge training', entity='tiny-ml')
+
+
+artifact = wandb.Artifact(name='CIFAR_10', type='CIFAR_DATA')
 artifact.add_dir('./data')
-
 run.log_artifact(artifact)
 
-# Define a smaller and quantization-aware CNN model
+
 class SmallQuantizedCNN(nn.Module):
     def __init__(self):
         super(SmallQuantizedCNN, self).__init__()
-        self.quant = torch.quantization.QuantStub()  # Quantization stub for inputs
+        self.quant = torch.quantization.QuantStub()  
         self.conv1 = nn.Conv2d(3, 4, 3)
         self.pool = nn.MaxPool2d(2, 2)
         self.conv2 = nn.Conv2d(4, 8, 3)
         self.fc1 = nn.Linear(8 * 6 * 6, 60)
         self.fc2 = nn.Linear(60, 40)
         self.fc3 = nn.Linear(40, 10)
-        self.dequant = torch.quantization.DeQuantStub()  # De-quantization stub for outputs
+        self.dequant = torch.quantization.DeQuantStub()  
 
     def forward(self, x):
         x = self.quant(x)
@@ -40,6 +41,19 @@ class SmallQuantizedCNN(nn.Module):
         x = self.fc3(x)
         x = self.dequant(x)
         return x
+
+
+def compute_accuracy(model, dataloader, device):
+    correct = 0
+    total = 0
+    with torch.no_grad():
+        for data in dataloader:
+            images, labels = data[0].to(device), data[1].to(device)
+            outputs = model(images)
+            _, predicted = torch.max(outputs.data, 1)
+            total += labels.size(0)
+            correct += (predicted == labels).sum().item()
+    return 100 * correct / total
 
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -56,17 +70,15 @@ trainloader = torch.utils.data.DataLoader(trainset, batch_size=4, shuffle=True)
 testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=transform)
 testloader = torch.utils.data.DataLoader(testset, batch_size=4, shuffle=False)
 
-# Initialize the smaller, quantization-aware model
 model = SmallQuantizedCNN().to(device)
 run.watch(model)
-model.qconfig = torch.quantization.get_default_qat_qconfig('fbgemm')  # Configure for QAT
-torch.quantization.prepare_qat(model, inplace=True)  # Prepare the model for QAT
+model.qconfig = torch.quantization.get_default_qat_qconfig('fbgemm')  
+torch.quantization.prepare_qat(model, inplace=True)  
 
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
 
-# Train the model for 10 epochs
-for epoch in range(10):
+for epoch in range(5):
     running_loss = 0.0
     for i, data in enumerate(trainloader, 0):
         inputs, labels = data[0].to(device), data[1].to(device)
@@ -75,15 +87,23 @@ for epoch in range(10):
         loss = criterion(outputs, labels)
         loss.backward()
         optimizer.step()
-        run.log({'loss':loss})
-
         running_loss += loss.item()
         if i % 2000 == 1999:
+            accuracy = compute_accuracy(model, testloader, device)
+            run.log({'epoch': epoch, 'loss': loss.item(), 'accuracy': accuracy})
             print('[%d, %5d] loss: %.3f' % (epoch + 1, i + 1, running_loss / 2000))
             running_loss = 0.0
+            weights_to_save = deepcopy(model.cpu().state_dict())
+            torch.save(weights_to_save, 'quantized_model.pth')
+            print('Model Saved')
+            model.to(device)
+            artifact = wandb.Artifact(name='quantized_model', type='model')
+            artifact.add_file('quantized_model.pth')
+            run.log_artifact(artifact)
+            
+    print(f"Epoch {epoch+1}, Accuracy: {accuracy}%")
 
-print('Finished Training')
 
-# Convert to a quantized model
-model.eval()
-torch.quantization.convert(model, inplace=True)
+
+
+

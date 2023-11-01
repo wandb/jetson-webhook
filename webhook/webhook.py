@@ -1,12 +1,14 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
 import wandb
+import os
+import subprocess
 # The token and secret are stored as environment variables
 with open("secrets.json") as f:
     secrets = json.load(f)
 
-EXPECTED_SECRET = secrets["expected_secret"]
-EXPECTED_TOKEN = 'token'
+EXPECTED_SECRET = secrets["wandb-secret"]
+EXPECTED_TOKEN = 'X-WANDB-Signature'
  # example secret
 api = wandb.Api()
 class WebhookHandler(BaseHTTPRequestHandler):
@@ -18,15 +20,16 @@ class WebhookHandler(BaseHTTPRequestHandler):
         print(post_data)
         
         # Extracting the token, remove 'Bearer ' prefix
-        authorization_header = self.headers.get('Authorization')
-        token = authorization_header.split(' ')[-1] if authorization_header else None
+        secret = self.headers.get('Authorization')
+        print(f"authorization header = {secret}")
+        secret = secret.split(' ')[-1] if secret else None
         
         # Extracting the secret from the correct header
-        secret = self.headers.get('X-Wandb-Signature')
+        token = self.headers.get('X-Wandb-Signature')
         
-        print("token = "+str(token)+" secret "+str(secret))
+        print("token = "+ EXPECTED_TOKEN +" secret " +str(secret))
         
-        if token == EXPECTED_TOKEN and secret == EXPECTED_SECRET:
+        if secret == EXPECTED_SECRET:
             print("Received webhook payload:")
             print(post_data.decode())
             self.send_response(200)
@@ -35,9 +38,15 @@ class WebhookHandler(BaseHTTPRequestHandler):
             self.wfile.write(b'Webhook payload received')
             payload = json.loads(post_data)
             payload = payload["client_payload"]
-            artifact = api.artifact(payload["artifact_version_string"], type='CIFAR_DATA')
+            if payload['artifact_collection_name'] == 'CIFAR_10':
+                artifact = api.artifact(payload["artifact_version_string"], type='CIFAR_DATA')
+                artifact.download()
+            elif payload['artifact_collection_name'] == "quantized_model":
+                artifact = api.artifact(payload["artifact_version_string"], type='model')
+                artifact.download()
+                # retrain model as a subprocess with env vars
+                os.system('python3 /home/frida/emea-sesame/webhook/qunantized_train.py')
             # You can add more processing logic here
-            artifact.download()
         else:
             self.send_response(401)
             self.send_header('Content-type', 'text/html')
