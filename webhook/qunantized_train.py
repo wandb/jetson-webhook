@@ -43,6 +43,9 @@ class SmallQuantizedCNN(nn.Module):
         return x
 
 
+def mean_rgb(image):
+    return image.mean(dim=[1, 2]).tolist()  
+
 def compute_accuracy(model, dataloader, device):
     correct = 0
     total = 0
@@ -65,7 +68,7 @@ transform = transforms.Compose([
 ])
 
 trainset = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=transform)
-trainloader = torch.utils.data.DataLoader(trainset, batch_size=4, shuffle=True)
+trainloader = torch.utils.data.DataLoader(trainset, batch_size=20, shuffle=True)
 
 testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=transform)
 testloader = torch.utils.data.DataLoader(testset, batch_size=4, shuffle=False)
@@ -88,6 +91,15 @@ for epoch in range(5):
         loss.backward()
         optimizer.step()
         running_loss += loss.item()
+        if i % 500 == 0:  # Choose a suitable frequency
+            table = wandb.Table(columns=["Image", "Label", "Mean R", "Mean G", "Mean B"])
+            for j in range(len(inputs)):
+                image = inputs[j].cpu().numpy().transpose(1, 2, 0)  # Move to cpu and convert CHW to HWC
+                label = labels[j].item()
+                r_mean, g_mean, b_mean = mean_rgb(inputs[j])
+                table.add_data(wandb.Image(image), label, r_mean, g_mean, b_mean)
+            run.log({"Image Table": table}, commit=False)  # Log table
+
         if i % 2000 == 1999:
             accuracy = compute_accuracy(model, testloader, device)
             run.log({'epoch': epoch, 'loss': loss.item(), 'accuracy': accuracy})
