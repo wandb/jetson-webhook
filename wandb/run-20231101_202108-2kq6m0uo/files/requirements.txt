@@ -59,7 +59,7 @@ opencv-python-headless==4.8.0.76
 packaging==21.3
 pandas==0.22.0
 pathtools==0.1.2
-pillow==8.4.0
+pillow==10.0.1
 pip==9.0.1
 platformdirs==2.4.0
 promise==2.3
