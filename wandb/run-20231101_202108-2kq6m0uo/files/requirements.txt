@@ -25,7 +25,7 @@ filelock==3.4.1
 flask==2.0.3
 gdown==4.5.1
 gitdb==4.0.9
-gitpython==3.1.20
+gitpython==3.1.37
 graphsurgeon==0.4.5
 greenlet==0.4.12
 html5lib==0.999999999
