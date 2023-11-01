@@ -3,7 +3,7 @@ asn1crypto==0.24.0
 beautifulsoup4==4.11.1
 blinker==1.4
 brlapi==0.6.6
-certifi==2022.6.15
+certifi==2023.7.22
 chardet==3.0.4
 charset-normalizer==2.0.12
 click==8.0.4
