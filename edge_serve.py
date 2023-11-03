@@ -3,6 +3,7 @@ import json
 import wandb
 import os
 import subprocess
+from training.qunantized_train import TrainModel, SmallQuantizedCNN
 # The token and secret are stored as environment variables
 with open("secrets.json") as f:
     secrets = json.load(f)
@@ -46,7 +47,13 @@ class WebhookHandler(BaseHTTPRequestHandler):
                 artifact = api.artifact(payload["artifact_version_string"], type='model')
                 artifact.download()
                 # retrain model as a subprocess with env vars
-                os.system('python3 /home/frida/emea-sesame/webhook/qunantized_train.py')
+                model = SmallQuantizedCNN()
+                train = TrainModel(model)
+                train.wandb_login()
+                train.wandb_init()
+                train.create_wandb_artifact()
+                train.train()
+
             # You can add more processing logic here
         else:
             self.send_response(401)
