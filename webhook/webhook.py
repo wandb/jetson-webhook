@@ -9,6 +9,7 @@ with open("secrets.json") as f:
 
 EXPECTED_SECRET = secrets["wandb-secret"]
 EXPECTED_TOKEN = 'X-WANDB-Signature'
+os.environ['WANDB_API_KEY'] = secrets["wandb-api-key"]
  # example secret
 api = wandb.Api()
 class WebhookHandler(BaseHTTPRequestHandler):

@@ -81,7 +81,7 @@ torch.quantization.prepare_qat(model, inplace=True)
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
 
-for epoch in range(5):
+for epoch in range(30):
     running_loss = 0.0
     for i, data in enumerate(trainloader, 0):
         inputs, labels = data[0].to(device), data[1].to(device)
