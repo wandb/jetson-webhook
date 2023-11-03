@@ -45,11 +45,10 @@ class TrainModel:
         self.trainloader = torch.utils.data.DataLoader(self.trainset, batch_size=20, shuffle=True)
         self.testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=self.transform)
         self.testloader = torch.utils.data.DataLoader(self.testset, batch_size=4, shuffle=False)
-        self.run.watch(model)
         self.model.qconfig = torch.quantization.get_default_qat_qconfig('fbgemm')  
-        self.torch.quantization.prepare_qat(model, inplace=True)  
         self.criterion = nn.CrossEntropyLoss()
         self.optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
+        torch.quantization.prepare_qat(model, inplace=True)  
         wandb.login(key=os.environ['WANDB_API_KEY'], force=True, relogin=True)
 
     def mean_rgb(self,image):
@@ -79,7 +78,13 @@ class TrainModel:
         return 100 * correct / total
 
     def train(self):
+        self.run.watch(self.model)
+        self.model.to(self.device)
         for epoch in range(30):
+            if hasattr(self.model, 'quant'):
+                self.model.quant.to(self.device)
+            if hasattr(self.model, 'dequant'):
+                self.model.dequant.to(self.device)
             running_loss = 0.0
             for i, data in enumerate(self.trainloader, 0):
                 inputs, labels = data[0].to(self.device), data[1].to(self.device)
@@ -96,7 +101,7 @@ class TrainModel:
                         label = labels[j].item()
                         r_mean, g_mean, b_mean = self.mean_rgb(inputs[j])
                         table.add_data(wandb.Image(image), label, r_mean, g_mean, b_mean)
-                    run.log({"Image Table": table}, commit=False)  # Log table
+                    self.run.log({"Image Table": table}, commit=False)  # Log table
 
                 if i % 2000 == 1999:
                     accuracy = self.compute_accuracy(self.model, self.testloader, self.device)

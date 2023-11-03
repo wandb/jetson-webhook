@@ -8,12 +8,12 @@ __pycache__/
 
 # data
 
-*/data
-*/artifacts
+*data
+*artifacts
 
 # logs
 
-*/wandb
+*wandb
 
 #secrets
 
