@@ -18,8 +18,9 @@ class WebhookHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         content_length = int(self.headers['Content-Length'])
         post_data = self.rfile.read(content_length)
-        print(self.headers)
-        print(post_data)
+        
+        print(f'wandb webhook headers {self.headers}')
+        print(f'post data {post_data}')
         
         # Extracting the token, remove 'Bearer ' prefix
         secret = self.headers.get('Authorization')
@@ -64,5 +65,5 @@ class WebhookHandler(BaseHTTPRequestHandler):
 if __name__ == '__main__':
     server_address = ('', 8090)
     httpd = HTTPServer(server_address, WebhookHandler)
-    print('Webhook Receiver running on port 80...')  # corrected port number in the print statement
+    print('Webhook Receiver running on port 8090')  # corrected port number in the print statement
     httpd.serve_forever()
