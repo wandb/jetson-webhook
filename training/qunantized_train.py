@@ -93,7 +93,11 @@ class TrainModel:
                 loss = self.criterion(outputs, labels)
                 loss.backward()
                 self.optimizer.step()
+
+
                 running_loss += loss.item()
+                acc =  self.compute_accuracy(self.model, self.testloader, self.device)
+                self.run.log('step_accuracy': acc)
                 if i % 500 == 0:  # Choose a suitable frequency
                     table = wandb.Table(columns=["Image", "Label", "Mean R", "Mean G", "Mean B"])
                     for j in range(len(inputs)):
