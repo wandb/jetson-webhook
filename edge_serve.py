@@ -24,8 +24,8 @@ class WebhookHandler(BaseHTTPRequestHandler):
         
         # Extracting the token, remove 'Bearer ' prefix
         secret = self.headers.get('Authorization')
-        print(f"authorization header = {secret}")
         secret = secret.split(' ')[-1] if secret else None
+        print(f"authorization header = {secret}")
         
         # Extracting the secret from the correct header
         token = self.headers.get('X-Wandb-Signature')
