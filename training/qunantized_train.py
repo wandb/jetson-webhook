@@ -96,8 +96,6 @@ class TrainModel:
 
 
                 running_loss += loss.item()
-                acc =  self.compute_accuracy(self.model, self.testloader, self.device)
-                self.run.log({'step_accuracy': acc})
                 if i % 500 == 0:  # Choose a suitable frequency
                     table = wandb.Table(columns=["Image", "Label", "Mean R", "Mean G", "Mean B"])
                     for j in range(len(inputs)):
@@ -107,9 +105,13 @@ class TrainModel:
                         table.add_data(wandb.Image(image), label, r_mean, g_mean, b_mean)
                     self.run.log({"Image Table": table}, commit=False)  # Log table
 
-                if i % 2000 == 1999:
+                if i % 100 == 0:
                     accuracy = self.compute_accuracy(self.model, self.testloader, self.device)
-                    self.run.log({'epoch': epoch, 'loss': loss.item(), 'accuracy': accuracy})
+                    self.run.log({
+                        'epoch': epoch, 
+                        'loss': loss.item(), 
+                        'accuracy': accuracy,
+                        'loss': running_loss/100})
                     print('[%d, %5d] loss: %.3f' % (epoch + 1, i + 1, running_loss / 2000))
                     running_loss = 0.0
                     weights_to_save = deepcopy(self.model.cpu().state_dict())
