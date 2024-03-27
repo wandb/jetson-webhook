@@ -96,7 +96,7 @@ class TrainModel:
 
 
                 running_loss += loss.item()
-                if i % 100 == 0:  # Choose a suitable frequency
+                if i % 10 == 0:  # Choose a suitable frequency
                     table = wandb.Table(columns=["Image", "Label", "Mean R", "Mean G", "Mean B"])
                     for j in range(len(inputs)):
                         image = inputs[j].cpu().numpy().transpose(1, 2, 0)  # Move to cpu and convert CHW to HWC
@@ -110,7 +110,7 @@ class TrainModel:
                         'loss': loss.item(), 
                         'accuracy': accuracy,
                         })
-                    print('[%d, %5d] loss: %.3f' % (epoch + 1, i + 1, running_loss / 100))
+                    print('[%d, %5d] loss: %.3f' % (epoch + 1, i + 1, running_loss / 10))
                     running_loss = 0.0
                     weights_to_save = deepcopy(self.model.cpu().state_dict())
                     torch.save(weights_to_save, 'quantized_model.pth')
