@@ -14,3 +14,10 @@ appying the alias `retrain` on either data artifact or model artifact will dowlo
 webhook.py runs a super simple web server in python which listens for incoming signal -- in this case it has a real IP on a real device which serving from an Nvidia Jetson exposed to the public internet.
 
 This can simply be run with `python webhook.py` from an Nvidia Jetson (or any other edge device configured in the same way)
+
+## To Do:
+
+[ ] add args to automation in payload -- eg { learning rate, other configs}
+[ ] add args parser
+[ ] setup in docker
+[ ] add inference step 

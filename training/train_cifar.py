@@ -54,7 +54,6 @@ class SimpleCNN(nn.Module):
     testset = torchvision.datasets.CIFAR10(root='./test_data', train=False, download=True, transform=transform)
     testloader = torch.utils.data.DataLoader(testset, batch_size=4, shuffle=False)
     # Initialize the model, loss function, and optimizer
-    model = SimpleCNN().to(device)
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
 

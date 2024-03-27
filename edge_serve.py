@@ -64,5 +64,5 @@ class WebhookHandler(BaseHTTPRequestHandler):
 if __name__ == '__main__':
     server_address = ('', 8090)
     httpd = HTTPServer(server_address, WebhookHandler)
-    print('Webhook Receiver running on port 8090...')  # corrected port number in the print statement
+    print('Webhook Receiver running on port 80...')  # corrected port number in the print statement
     httpd.serve_forever()
