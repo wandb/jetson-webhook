@@ -34,18 +34,10 @@ class WebhookHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         content_length = int(self.headers['Content-Length'])
         post_data = self.rfile.read(content_length)
-
-        print(f'wandb webhook headers {self.headers}')
-        print(f'post data {post_data}')
-
         # Extracting the token, remove 'Bearer ' prefix
         secret = self.headers.get('Authorization')
         secret = secret.split(' ')[-1] if secret else None
-        print(f"authorization header = {secret}")
-
-        # Extracting the X-Wandb-Signature from the header
         signature = self.headers.get('X-Wandb-Signature')
-
         # Verify the HMAC signature
         # verify = verify_signature(EXPECTED_SECRET,signature)
         verify = True
