@@ -58,7 +58,7 @@ class TrainModel:
         wandb.login(key=os.environ['WANDB_API_KEY'], force=True, relogin=True)
     
     def wandb_init(self):
-        self.run = wandb.init(project='quantized edge training', entity='tiny-ml')
+        self.run = wandb.init(project='quantized edge training', entity='jetson-nano-train')
     
     def create_wandb_artifact(self):
         self.artifact = wandb.Artifact(name='CIFAR_10', type='CIFAR_DATA')
