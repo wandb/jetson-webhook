@@ -4,12 +4,12 @@ This repo demonstrates using webhooks to train, retrain, and download wandb arti
 
 Experimenting with ML on edge devices is a deeply fascinating task that drives at the core of many of the underlying aspects that are scaled to much bigger/scaled applications.
 
-Demonstrating what can be achived on edge devices is important for a number of reasons:
+Demonstrating what can be achieved on edge devices is important for a number of reasons:
 1. If you can do it small, it can be scaled -- the converse is not always true.
-2. They have real world applications of low power solutions and can be used to deploy real world ML edge cases
-3. Edge devices are often whole computers in a nutshell that can control/ interact/ 'live' in specific applications (eg. an automated (x) that uses face recognition) where x is some real world appliction such as opening a door or feeding your cat.
+2. They have real-world applications of low-power solutions and can be used to deploy real-world ML edge cases.
+3. Edge devices are often whole computers in a nutshell that can control/interact/'live' in specific applications (e.g., an automated (x) that uses face recognition) where x is some real-world application such as opening a door or feeding your cat.
 
-While edge applications in general are a fascinating field in their own right -- it is also possible to have a lab in one's living room and experiment with tools and techniques that can be applied much more broadly, including aspects of:
+While edge applications, in general, are a fascinating field in their own right -- it is also possible to have a lab in one's living room and experiment with tools and techniques that can be applied much more broadly, including aspects of:
 
 - Networking and how communication actually happens over the internet.
 - Linux OS setup.
@@ -37,9 +37,11 @@ Applying the alias `download` on either data artifact or model artifact will dow
 
 #### It is important to note here that there are security considerations to the above -- as in you are exposing your device to the public internet. Ubuntu has a default firewall -- however, the authors are absolutely not security experts and the process shared is very much in the spirit of "MVP" and experimenting purposes rather than real production. You might simply switch off your device and remove port forwarding on your home router/firewall once you are done, but please take your own precautions.
 
-webhook.py runs a super simple web server in Python which listens for incoming signals -- in this case, it has a real IP on a real device which is serving from an NVIDIA Jetson exposed to the public internet.
+## To run server:
 
-This can simply be run with `python webhook.py` from an NVIDIA Jetson (or any other edge device configured in the same way)
+`webhook.py` runs a super simple web server in Python which listens for incoming signals -- in this case, it has a real IP on a real device which is serving from an NVIDIA Jetson exposed to the public internet.
+
+This can simply be run with `python3 webhook.py` from an NVIDIA Jetson (or any other edge device configured using the above steps) -- although the CUDA part won't work as they won't have a built-in NVIDIA GPU.
 
 ## To Do:
 - [ ] Add args to automation in payload
